@@ -1,32 +1,71 @@
-# Substack MCP server for ChatGPT and Claude
+# Substack API integration and MCP server: connect Substack to ChatGPT, Claude and any AI agent
 
-**Yes, ChatGPT, Claude and other AI agents can work in your Substack account.** Use Cotlet.dev to publish posts, schedule Notes, manage subscribers and read publication stats in your signed-in account.
+Substack API integration and MCP server, unofficial, by Cotlet. Your AI works in your own signed-in Substack account: posts, drafts, Notes, subscribers, comments and stats, on the same screens your login opens. Cotlet has 50 ready Substack tools for AI agents, and the Cloud Browser does the rest. No developer and no Substack API key needed. Cotlet is independent and is not affiliated with Substack.
 
-## What you can ask
+**Does Substack have an API or an MCP server?** Substack has an official MCP server, but it only reads (stats, traffic, revenue, retention), works only for Bestseller publications where you are an admin, and cannot publish posts or send Notes (Substack help center, checked 22 Nov 2026). Its Developer API returns public creator profile data after approval, with no posts, drafts or subscribers. Substack has no Zapier app and no Make app.
 
-> Schedule a Markdown newsletter draft for Friday at 9:00 AM.
+## What writers ask their AI to do in Substack
 
-> Publish a Note tomorrow at 10:00 AM with this text and ask before saving.
+| Job | Ask your AI | Make it repeat |
+|---|---|---|
+| Draft from a Google Doc | "Turn this Google Doc into a Substack draft with its headings and images. Do not publish." | When a post is ready |
+| Old posts into Substack | "Copy my archived posts from these Google Docs into Substack drafts, one per post, with the images." | Once |
+| Website signups into Substack | "Add the people who signed up on my website form today as free subscribers. Show me the list first." | Your own endpoint, called from your form tool |
+| Subscribers to MailerLite or Kit | "List this week's new free and paid subscribers so I can add them to MailerLite." | Your own endpoint, called from Zapier, Make or n8n |
+| Notes from your post | "Write 5 Notes from my latest post and show them to me. Post the one I pick at the time I choose." | After each post |
+| Why the numbers moved | "Why did my open rate drop this month? Compare opens, new subscribers and traffic sources with last month." | Monthly |
+| Stats in a spreadsheet | "Put each post's opens, views and new subscribers from this year in a spreadsheet." | Your own endpoint, called from Google Sheets |
+| Comments you have not answered | "List comments on my last 3 posts that I have not answered and draft a reply for each. Post nothing." | When you ask |
+| Share a post on social | "Write a LinkedIn post and an X post for today's Substack post, with its link." | After each post |
+| Clean up the list | "Tag subscribers with the lowest activity rating as inactive. Show me how many first." | Monthly |
+| Backup | "Download my subscriber list and all my posts as a backup." | Monthly |
+| Leaving Substack | "Export my posts and my subscribers with their plan for my move to Ghost." | Once |
 
-> Show subscriber growth and revenue for the last 30 days.
+Your AI asks you before it publishes, posts a Note, replies or changes anything. It does not auto-reply and does not post in bulk: Substack's Terms of Use forbid auto-responders and spam. Payments stay in your hands: Cotlet refuses payments.
 
-> List comments on my latest post and draft replies without sending them.
+## Your own Substack API, built with Cotlet
 
-> Create a weekly report of posts, Notes and subscriber changes.
+Substack gives you no API for posts, drafts or subscribers. With Cotlet you build your own: your AI does the job once in your Cloud Browser, you save it as an endpoint, and you call it from Google Sheets, Webflow or WordPress forms, Zapier, Make, n8n, your own code.
+
+Examples you can build in a few minutes (none of them exists until you build it):
+
+| Endpoint you build | What it returns or does |
+|---|---|
+| `new-subscribers` | subscribers who joined since a date, with free or paid plan |
+| `add-subscriber` | adds one email to your list as a free subscriber (writes only after you allow it) |
+| `post-stats` | opens, open rate, views and new subscribers per post for a period |
+| `publication-stats` | total and paid subscribers, cancellations and estimated revenue for a period |
+| `traffic-sources` | where your visitors came from in a period |
+| `unanswered-comments` | comments on your posts that have no reply from you |
+| `export-subscribers` | the full subscriber list as a CSV link |
+| `create-draft` | a draft from your Markdown or HTML; nothing is sent (writes only after you allow it) |
+
+Call it with your Cotlet API key, JSON in and JSON out:
+
+```bash
+curl -X POST https://cotlet.dev/api/v1/custom/new-subscribers \
+  -H "Authorization: Bearer $COTLET_API_KEY" -H "Content-Type: application/json" -d '{}'
+```
+
+Limits: one call runs up to 90 seconds, writes wait for your consent, payments are blocked. Start here: https://cotlet.dev/app/custom-api/new?app=substack
 
 ## Connect in 2 minutes
 
-Get your API key at https://cotlet.dev/app and export it as `COTLET_API_KEY`.
+Sign up at https://cotlet.dev, sign in to Substack once in your Cloud Browser, then add Cotlet to your AI.
+
+### Claude
+
+Settings → Connectors → Add custom connector, paste `https://cotlet.dev/mcp/v1` and sign in with Cotlet.dev.
+
+### ChatGPT
+
+Open Plugins in ChatGPT, choose Create as a plugin, paste `https://cotlet.dev/mcp/v1` and sign in with Cotlet.dev. No API key needed.
 
 ### Claude Code
 
 ```bash
 claude mcp add --transport http cotlet https://cotlet.dev/mcp/v1 --header "Authorization: Bearer $COTLET_API_KEY"
 ```
-
-### ChatGPT
-
-Settings → Apps → add connector URL `https://cotlet.dev/mcp/v1`, then sign in with Cotlet.dev. No API key needed.
 
 ### Cursor
 
@@ -83,31 +122,61 @@ python3 substack_agent.py tools     # list Cotlet.dev tools
 python3 substack_agent.py serve     # start the stdio MCP server (same as no argument)
 ```
 
-## Questions from Substack users
+## Questions from Substack writers
+**Does Substack have an API?**
 
-**How do I connect Substack to ChatGPT or Claude?**
+A narrow one. The Substack Developer API (terms updated 8 Jan 2026) returns public creator profile data after approval. It has no endpoints for posts, drafts or subscribers. With Cotlet you build your own endpoints that work in your signed-in Substack account.
 
-Sign up at cotlet.dev, log in to Substack once in its Cloud Browser and add Cotlet to ChatGPT or Claude, following the steps in your console. No API key is needed. ChatGPT and Claude then work in your Substack account through Cotlet, in their phone apps too.
+**Is there an official Substack MCP server for ChatGPT or Claude?**
 
-**What can ChatGPT do in Substack?**
+Yes, read-only. Substack's MCP server reads stats, traffic, revenue and retention, only for Bestseller publications where you are an admin. It cannot publish posts or send Notes. Cotlet works in your own Substack account on any plan and also does the writing side, after your OK.
 
-With Cotlet, ChatGPT, Claude and other AI agents handle jobs like these in Substack: schedule newsletter posts from a Markdown draft; post a Note when a new post goes out; weekly subscriber growth and revenue report. You ask in plain words, and anything that reaches other people waits for your OK first.
+**How do I connect Substack to Zapier or Make so a website signup is added to Substack?**
 
-**Can it schedule Notes as well as posts?**
+Substack has no Zapier or Make app. Build an `add-subscriber` endpoint with Cotlet and call it from Zapier, Make, n8n or your form tool. Each new email is added as a free subscriber.
 
-Yes. publish_note takes a publish_at time and the Note waits in your scheduled Notes until then. Substack added Notes scheduling in its apps; see On Substack, linked in the sources.
+**How do I sync Substack subscribers to MailerLite, Kit or beehiiv without exporting a CSV every time?**
 
-**Is the MCP server different from the REST API?**
+Build a `new-subscribers` endpoint and call it from Zapier, Make or n8n on a schedule. It returns the people who joined since a date, with their free or paid plan, ready to add in your email tool.
 
-Only the way in. Both have the same 50 tools, inputs and answers, one API key and one price.
+**Can Claude or ChatGPT create a draft in Substack from a Google Doc?**
+
+Yes, with Cotlet. Your AI reads the doc and saves a Substack draft with its headings and images. Nothing is published until you say so.
+
+**Can AI write and schedule Substack Notes?**
+
+It writes Notes from your post and posts the one you pick, now or at the time you choose. It does not post Notes on its own.
+
+**Can AI tell me why my open rate or subscriber growth dropped?**
+
+Yes. It reads your post stats, daily stats and traffic sources in your account and compares two periods in plain words.
+
+**How do I export all my Substack posts and subscribers?**
+
+Substack exports them by hand in Settings. Your AI can download the subscriber CSV and your posts for you, and a monthly backup can run from your own endpoint.
+
+**Can I connect Substack to Google Sheets?**
+
+Yes. Build a `post-stats` or `publication-stats` endpoint and call it from Google Sheets, or from a Zapier or Make step that writes the rows.
+
+**Can I move my subscribers to Ghost, beehiiv or Kit?**
+
+Your AI exports your posts and the subscriber list with each person's plan, in the files those importers take. Stripe and paid subscriptions stay in your hands.
+
+**Is this allowed by Substack's terms?**
+
+Cotlet works in your own signed-in Substack session and does what you ask, one task at a time, with your OK before anything is posted. Substack's Terms of Use (6 Oct 2026) forbid auto-responders, spam and crawling, so do not use it for auto-replies, bulk Notes or copying other writers' posts.
 
 ## Find it on
 
-- [Substack on Cotlet.dev](https://cotlet.dev/integrations/substack-api-mcp-server)
-- [All Cotlet packages](https://github.com/cotlet-connect)
+- [Substack MCP server on Cotlet.dev](https://cotlet.dev/integrations/substack-api-mcp-server?utm_source=github&utm_medium=readme&utm_campaign=substack&utm_content=find)
+- [PyPI package substack-mcp](https://pypi.org/project/substack-mcp/)
 
----
+## More newsletter and creator apps on Cotlet
 
-More: https://cotlet.dev/integrations/substack-api-mcp-server?utm_source=github&utm_medium=readme&utm_campaign=substack
-
-Request access: https://cotlet.dev/signup?app=substack&utm_source=github&utm_medium=readme&utm_campaign=substack
+- [Medium MCP](https://github.com/cotlet-connect/medium-mcp)
+- [Ghost MCP](https://github.com/cotlet-connect/ghost-mcp)
+- [Patreon MCP](https://github.com/cotlet-connect/patreon-mcp)
+- [Quora MCP](https://github.com/cotlet-connect/quora-mcp)
+- [Skool MCP](https://github.com/cotlet-connect/skool-mcp)
+- [LinkedIn MCP](https://github.com/cotlet-connect/linkedin-mcp)
